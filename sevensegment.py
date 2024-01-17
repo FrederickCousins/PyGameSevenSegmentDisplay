@@ -5,6 +5,7 @@ Created on Jan 28, 2012
 '''
 import pygame
 import pygame.gfxdraw
+from functools import reduce
 pygame.init()
 
 A = 0x01
@@ -79,7 +80,7 @@ SSD_CHAR_MAP = {
                 }
 
 # Add the keys for lowercase characters
-for key in SSD_CHAR_MAP.keys():
+for key in list(SSD_CHAR_MAP.keys()):
     if key.lower() != key:
         SSD_CHAR_MAP[key.lower()] = SSD_CHAR_MAP[key]
 
