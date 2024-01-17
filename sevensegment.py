@@ -121,34 +121,40 @@ class SevenSegmentChar(object):
         self._surface = pygame.Surface((self._width, self._height))
         self._surface.fill(bgcolour)
         
-        segment_on_point_pairs = self._get_on_segment_points()
-        for point_pair in segment_on_point_pairs:
+        segment_point_pairs = self._get_segment_points()
+        for point_pair in segment_point_pairs:
             print(point_pair)
-            if point_pair:
+            if point_pair[0]:
                 pygame.draw.line(self._surface,
                                  self._colour_on,
-                                 point_pair[0], 
-                                 point_pair[1],
+                                 point_pair[1][0], 
+                                 point_pair[1][1],
                                  self._segment_width
                                )
-        
-        segment_off_point_pairs = self._get_off_segment_points()
-        for point_pair in segment_off_point_pairs:
-            print(point_pair)
-            if point_pair:
+            else:
                 pygame.draw.line(self._surface,
                                  self._colour_off,
-                                 point_pair[0], 
-                                 point_pair[1],
+                                 point_pair[1][0], 
+                                 point_pair[1][1],
                                  self._segment_width
                                )
         
+        # segment_off_point_pairs = self._get_off_segment_points()
+        # for point_pair in segment_off_point_pairs:
+        #     print(point_pair)
+        #     if point_pair:
+        #         pygame.draw.line(self._surface,
+        #                          self._colour_off,
+        #                          point_pair[0], 
+        #                          point_pair[1],
+        #                          self._segment_width
+        #                        )
         
-    def _get_on_segment_points(self):
+        
+    def _get_segment_points(self):
         '''
-        returns an iterable of point pairs which denote the start and end points
-        of each segment, in order from A to G. A value of None, [], or () should 
-        be treated as an unlit segment.
+        returns an iterable of (on/off, point pair)s which denote the start and end points
+        of each segment, in order from A to G.
         '''
         xmin = self._segment_width
         xmax = self._segment_width + self._segment_length
@@ -185,71 +191,34 @@ class SevenSegmentChar(object):
         
         for segment in (A, B, C, D, E, F, G):
             if segment & ssd:
-                ret.append(positions[segment])
+                ret.append((1, positions[segment]))
             else:
-                ret.append(None)
+                ret.append((0, positions[segment]))
         
         return ret
     
-    def _get_off_segment_points(self):
-        '''
-        returns an iterable of point pairs which denote the start and end points
-        of each segment, in order from A to G. A value of None, [], or () should 
-        be treated as a lit segment.
-        '''
-        xmin = self._segment_width
-        xmax = self._segment_width + self._segment_length
-        
-        ymin = self._segment_width
-        ymax = 2 * self._segment_length + 2 * self._segment_width
-         
-        slen = self._segment_length
-        
-        positions = {
-                     A: ((xmin, ymin),
-                         (xmax, ymin)),
-                     
-                     B: ((xmax, ymin),
-                         (xmax, ymin + slen)),
-                     
-                     C: ((xmax, ymax - slen),
-                         (xmax, ymax)),
-                     
-                     D: ((xmax, ymax),
-                         (xmin, ymax)),
-                     
-                     E: ((xmin, ymax), 
-                         (xmin, ymax - slen)),
-                     
-                     F: ((xmin, ymin),
-                         (xmin, ymin + slen)),
-                     
-                     G: ((xmin, ymin + slen),
-                         (xmax, ymin + slen))}
-        
-        ssd = SSD_CHAR_MAP[self._char]
-        ret = []
-        
-        for segment in (A, B, C, D, E, F, G):
-            if not segment & ssd:
-                ret.append(positions[segment])
-            else:
-                ret.append(None)
-        
-        return ret
+    
     
     def update(self):
         self._segment_length = self._width - 2 * self._segment_width
         self._surface.fill(self._bgcolour)
-        segment_point_pairs = self._get_on_segment_points()
+        segment_point_pairs = self._get_segment_points()
         for point_pair in segment_point_pairs:
-            if point_pair:
+            print(point_pair)
+            if point_pair[0]:
                 pygame.draw.line(self._surface,
                                  self._colour_on,
-                                 point_pair[0], 
-                                 point_pair[1],
+                                 point_pair[1][0], 
+                                 point_pair[1][1],
                                  self._segment_width
-                                 )
+                               )
+            else:
+                pygame.draw.line(self._surface,
+                                 self._colour_off,
+                                 point_pair[1][0], 
+                                 point_pair[1][1],
+                                 self._segment_width
+                               )
             
     @property
     def surface(self):
