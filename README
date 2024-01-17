@@ -1,3 +1,11 @@
+# PyGame Seven Segment Display
+
+This repo is a fork of [this one](https://github.com/yati-sagade/SevenSegmentDisplay).
+
+I've updated it to work with Python 3 and added the functionality that I required at the time
+
+
+# Original README contents:
 SevenSegmentDisplay
 Author: Yati Sagade
 Desc:   A small Python library that emulates a 7-segment display using
