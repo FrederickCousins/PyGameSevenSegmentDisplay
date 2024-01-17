@@ -10,13 +10,14 @@ import pygame.gfxdraw
 from functools import reduce
 pygame.init()
 
-A = 0x01
-B = 0x02
-C = 0x04
-D = 0x08
-E = 0x10
-F = 0x20
-G = 0x40
+##             _____________
+A = 0x01  ##  |  |___A___|  |
+B = 0x02  ##  | F|       |B |
+C = 0x04  ##  |__|_______|__|
+D = 0x08  ##  |__|___G___|__|
+E = 0x10  ##  |  |       |  |
+F = 0x20  ##  | E|_______|C |
+G = 0x40  ##  |__|___D___|__|
 
 def on_segments(*args):
     '''
