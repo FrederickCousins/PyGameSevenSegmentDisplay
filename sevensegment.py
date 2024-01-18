@@ -10,7 +10,7 @@ import pygame.gfxdraw
 from functools import reduce
 pygame.init()
 
-# _____________
+          #  _____________
 A = 0x01  # |  |___A___|  |
 B = 0x02  # | F|       |B |
 C = 0x04  # |__|_______|__|
@@ -129,7 +129,6 @@ class SevenSegmentChar(object):
             self._segment_width + 2 * self._frame_width
         self._surface = pygame.Surface((self._width, self._height))
         self._surface.fill(bgcolour)
-
         self.draw_ssd_segments()
 
     def _get_segment_points(self):
@@ -413,7 +412,6 @@ class SevenSegmentDisplay(list):
                                          self._segment_width,
                                          self._segment_padding,
                                          self._frame_width))
-
         self.update_surface()
 
     def update_surface(self):
@@ -464,7 +462,6 @@ class SevenSegmentDisplay(list):
         self._colour_on = new
         for ssdchar in self:
             ssdchar.colour_on = new
-
         self.update_surface()
 
     @property
@@ -476,7 +473,6 @@ class SevenSegmentDisplay(list):
         self._colour_off = new
         for ssdchar in self:
             ssdchar.colour_off = new
-
         self.update_surface()
 
     @property
@@ -488,7 +484,6 @@ class SevenSegmentDisplay(list):
         self._bgcolour = new
         for ssdchar in self:
             ssdchar.bgcolour = new
-
         self.update_surface()
 
     @property
@@ -500,7 +495,6 @@ class SevenSegmentDisplay(list):
         self._segment_width = new
         for ssdchar in self:
             ssdchar.segment_width = new
-
         self.update_surface()
 
     @property
@@ -512,7 +506,6 @@ class SevenSegmentDisplay(list):
         self._segment_padding = new
         for ssdchar in self:
             ssdchar.segment_padding = new
-
         self.update_surface()
 
     @property
@@ -524,7 +517,6 @@ class SevenSegmentDisplay(list):
         self._frame_width = new
         for ssdchar in self:
             ssdchar.frame_width = new
-
         self.update_surface()
 
     @property
