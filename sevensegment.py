@@ -28,6 +28,7 @@ D = 0x08
 E = 0x10  
 F = 0x20  
 G = 0x40  
+SEGMENTS = (A, B, C, D, E, F, G)
 
 
 def on_segments(*args):
@@ -38,7 +39,7 @@ def on_segments(*args):
     return reduce(lambda x, y: (x | y), args, 0)
 
 
-ALL = on_segments(A, B, C, D, E, F, G)
+ALL = on_segments(*SEGMENTS)
 
 # Sometimes, it is nicer to specify which segments should be off.
 def off_segments(*args):
@@ -159,12 +160,14 @@ class SevenSegmentChar:
             self._segment_width + 2 * self._frame_width
         self._surface = pygame.Surface((self._width, self._height))
         self._surface.fill(bgcolour)
-        self.draw_ssd_segments()
+        self._draw_ssd_segments()
 
     def _get_segment_points(self):
         """Get point co-ords of each segment 
-        returns an iterable of (on/off, point pair)s which denote the start and end points
-        of each segment, in order from A to G.
+
+        Returns:
+            An iterable of point pairs which denote polygon points of each
+            segment, in order from A to G.
         """
         s_len = self._segment_length
         s_wid = self._segment_width
@@ -241,43 +244,36 @@ class SevenSegmentChar:
                 (x3 - s_pad, y3),
                 (x4 - s_pad, y4),
                 (x3 - s_pad, y5),
-                (x2 + s_pad, y5)), }
+                (x2 + s_pad, y5))}
 
-        ssd = SSD_CHAR_MAP[self._char]
-        ret = []
-
-        for segment in (A, B, C, D, E, F, G):
-            if segment & ssd:
-                ret.append((1, positions[segment]))
-            else:
-                ret.append((0, positions[segment]))
-
-        return ret
+        return [positions[segment] for segment in SEGMENTS]
 
     def update(self):
         self._segment_length = self._width - 2 * self._segment_width
         self._surface.fill(self._bgcolour)
-        self.draw_ssd_segments()
+        self._draw_ssd_segments()
 
-    def draw_ssd_segments(self):
+    def _draw_ssd_segments(self):
+        ssd = SSD_CHAR_MAP[self._char]
+        is_segment_on = [True if segment & ssd else False for segment in SEGMENTS]
         segment_polygon_points = self._get_segment_points()
-        for segment_points in segment_polygon_points:
-            if segment_points[0]:
+        for is_on, segment_points in zip(is_segment_on, segment_polygon_points):
+            if is_on:
                 pygame.draw.polygon(surface=self._surface,
                                     color=self._colour_on,
-                                    points=segment_points[1])
+                                    points=segment_points)
                 pygame.draw.aalines(surface=self._surface,
                                     color=self._colour_on,
                                     closed=True,
-                                    points=segment_points[1])
+                                    points=segment_points)
             else:
                 pygame.draw.polygon(surface=self._surface,
                                     color=self._colour_off,
-                                    points=segment_points[1])
+                                    points=segment_points)
                 pygame.draw.aalines(surface=self._surface,
                                     color=self._colour_off,
                                     closed=True,
-                                    points=segment_points[1])
+                                    points=segment_points)
 
     @property
     def surface(self):
@@ -374,7 +370,7 @@ class SevenSegmentChar:
 class SevenSegmentDisplay(list):
     """The main seven segment display class
      
-    Acts a a container for SevenSegmentChar objects
+    Acts as a container for SevenSegmentChar objects
     """
 
     def __init__(self,
