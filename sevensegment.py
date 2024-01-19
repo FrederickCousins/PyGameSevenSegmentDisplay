@@ -233,20 +233,20 @@ class SevenSegmentChar(object):
         segment_polygon_points = self._get_segment_points()
         for segment_points in segment_polygon_points:
             if segment_points[0]:
+                pygame.draw.polygon(surface=self._surface,
+                                    color=self._colour_on,
+                                    points=segment_points[1])
                 pygame.draw.aalines(surface=self._surface,
                                     color=self._colour_on,
                                     closed=True,
                                     points=segment_points[1])
-                pygame.draw.polygon(surface=self._surface,
-                                    color=self.colour_on,
-                                    points=segment_points[1])
             else:
+                pygame.draw.polygon(surface=self._surface,
+                                    color=self._colour_off,
+                                    points=segment_points[1])
                 pygame.draw.aalines(surface=self._surface,
                                     color=self._colour_off,
                                     closed=True,
-                                    points=segment_points[1])
-                pygame.draw.polygon(surface=self._surface,
-                                    color=self._colour_off,
                                     points=segment_points[1])
 
     @property
@@ -280,7 +280,7 @@ class SevenSegmentChar(object):
     def colour_off(self):
         return self._colour_off
 
-    @colour_on.setter
+    @colour_off.setter
     def colour_off(self, new):
         self._colour_off = new
         self.update()
