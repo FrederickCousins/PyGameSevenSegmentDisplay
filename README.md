@@ -4,6 +4,12 @@ This repo is a fork of [this one](https://github.com/yati-sagade/SevenSegmentDis
 
 I've updated it to work with Python 3 and added the functionality that I required at the time
 
+## To-do:
+
+- [ ] Add more possible segment shapes
+- [ ] Publish package to PyPI
+- [ ] Expand to 9, 14, 16 segment displays.
+
 
 # Original README contents:
 
