@@ -1,10 +1,10 @@
-'''
+"""
 Created on Jan 28, 2012
 @author: yati
 
 Forked Jan 17, 2024
 by FrederickCousins
-'''
+"""
 import pygame
 import pygame.gfxdraw
 from functools import reduce
@@ -31,10 +31,10 @@ G = 0x40
 
 
 def on_segments(*args):
-    '''
+    """
     takes the segment codes of segments that must be ON, and returns an
     appropriate int by logically ORing all the supplied codes
-    '''
+    """
     return reduce(lambda x, y: (x | y), args, 0)
 
 
@@ -42,9 +42,9 @@ ALL = on_segments(A, B, C, D, E, F, G)
 
 # Sometimes, it is nicer to specify which segments should be off.
 def off_segments(*args):
-    '''
+    """
     takes the segments that are to remain off, and returns an appropriate value
-    '''
+    """
     return (ALL & (~ on_segments(*args)))
 
 
@@ -100,41 +100,61 @@ for key in list(SSD_CHAR_MAP.keys()):
         SSD_CHAR_MAP[key.lower()] = SSD_CHAR_MAP[key]
 
 
-class SevenSegmentChar(object):
+COLOUR_ON = (255, 0, 0)
+COLOUR_OFF = (30, 0, 0)
+BGCOLOUR = (0, 0, 0)
+WIDTH = 20
+
+
+class SevenSegmentChar:
 
     def __init__(self,
                  char,
-                 colour_on=(255, 0, 0),
-                 colour_off=(10, 0, 0),
-                 bgcolour=(0, 0, 0),
-                 width=20,
-                 height=80,
-                 segment_width=6,
-                 segment_padding=2,
-                 frame_width=2):
-        '''
-        ctor;
-        takes the following args:
-        char: The char to represent. This value must be a key in SSD_CHAR_MAP.
-        colour_on: (R,G,B) colour tuple - default red.
-        colour_off: (R,G,B) colour tuple - default dark red.
-        bgcolour: (R,G,B) triple for the background of this char - default black.
-        width: width of this character in pixels - default is 20px.
-        height: height of this character in pixels - default is 80px.
-        segment_width: the width of each segement in the char - default is 6px.
-        segment_padding: the space between each segment - default is 2px.
-        frame_width: the width of the space between the character and the edge of the surface - default is 2px
-        '''
+                 width=WIDTH,
+                 colour_on=COLOUR_ON,
+                 colour_off=COLOUR_OFF,
+                 bgcolour=BGCOLOUR,
+                 segment_width=None,
+                 segment_padding=None,
+                 frame_width=None):
+        """Constructor for SevenSegmentChar.
+
+        Args:
+            char:
+                The char to represent. This value must be a key in SSD_CHAR_MAP.
+
+            width:
+                width of this character in pixels - default 20px.
+
+            colour_on:
+                (R,G,B) colour tuple - default red.
+
+            colour_off:
+                (R,G,B) colour tuple - default dark red.
+
+            bgcolour:
+                (R,G,B) triple for the background of this char - default black.
+
+            segment_width:
+                the width of each segment in the char - default is width/5.
+
+            segment_padding:
+                the space between each segment - default is width/10.
+
+            frame_width:
+                the width of the space between the character and the edge of
+                the surface - default is width/15
+        """
         assert char in SSD_CHAR_MAP
         self._char = char
         self._width = width
         self._colour_on = colour_on
         self._colour_off = colour_off
         self._bgcolour = bgcolour
-        self._segment_width = segment_width
-        self._frame_width = frame_width
+        self._segment_width = segment_width if segment_width else self._width/5
+        self._segment_padding = segment_padding if segment_padding else self._width/10
+        self._frame_width = frame_width if frame_width else self._width/15
         self._segment_length = self._width - self._segment_width - 2 * self._frame_width
-        self._segment_padding = segment_padding
         self._height = 2 * self._segment_length + \
             self._segment_width + 2 * self._frame_width
         self._surface = pygame.Surface((self._width, self._height))
@@ -142,10 +162,10 @@ class SevenSegmentChar(object):
         self.draw_ssd_segments()
 
     def _get_segment_points(self):
-        '''
+        """Get point co-ords of each segment 
         returns an iterable of (on/off, point pair)s which denote the start and end points
         of each segment, in order from A to G.
-        '''
+        """
         s_len = self._segment_length
         s_wid = self._segment_width
         s_pad = self._segment_padding / 2
@@ -352,96 +372,127 @@ class SevenSegmentChar(object):
 
 
 class SevenSegmentDisplay(list):
-    '''
-    The main display class - acts a a container for SevenSegmentChar objects.
-    '''
+    """The main seven segment display class
+     
+    Acts a a container for SevenSegmentChar objects
+    """
 
     def __init__(self,
-                 width,
-                 height,
                  content='',
-                 colour_on=(255, 0, 0),  # red
-                 colour_off=(40, 0, 0),  # dark red
-                 bgcolour=(0, 0, 0),  # black
-                 segment_width=2,
-                 segment_padding=6,
-                 frame_width=2,
-                 char_width=None,
+                 char_width=WIDTH,
+                 display_width=None,
+                 colour_on=COLOUR_ON,  # red
+                 colour_off=COLOUR_OFF,  # dark red
+                 bgcolour=BGCOLOUR,  # black
+                 segment_width=None,
+                 segment_padding=None,
+                 char_frame_width=None,
                  right_justify=True):
-        '''
-        ctor for SevenSegmentDisplay. 
-        Args:
-            width: width of this panel.
-            height: height of this panel.
-            content: a string representing the content of the panel.
-            colour_on: colour of the lit up segments. default red.
-            colour_off: colour of the off segments. default dark red.
-            bgcolour: background of the display. default black.
-            segment_width: width of a segment in pixels. default 2px.
-            char_width: width of each character - If not given, this value is
-                calculated from `width` and len(content). If given, this width is
-                used even if space in the panel is unused.
+        """Constructor for SevenSegmentDisplay.
 
-            right_justify: If this is True(default), the content is displayed right
-                justified, as in traditional SSD displays. Otherwise, content is
-                displayed left justified(surprise!!)
-        '''
-        self._width = width
-        self._height = height
+        Args:
+            content:
+                a string representing the content of the panel.
+
+            char_width:
+                width of each character
+                - default is 20px.
+
+            display_width:
+                width of whole display panel
+                - default is num_chars * char_width.
+
+            colour_on:
+                colour of the lit up segments
+                - default red.
+
+            colour_off:
+                colour of the off segments
+                - default dark red.
+
+            bgcolour:
+                background colour of the display
+                - default black.
+
+            segment_width:
+                px width of a segment
+                - default is char_width/5.
+
+            segment_padding:
+                px space between each segment
+                - default is width/10.
+
+            frame_width:
+                px width of space between character and edge of panel
+                - default is width/10.
+
+            right_justify:
+                If this is True(default), the content is displayed right
+                justified, as in traditional SSD displays. Otherwise, content
+                is displayed left justified.
+        """
+        if not content:
+            raise ValueError("Empty content, "
+                             "if you meant to have a blank display, use spaces")
+        
         self._content = content
+        self._char_width = char_width
+        self._display_width = display_width if display_width \
+            else len(self._content) * self._char_width
+        if self._display_width < len(self._content) * self._char_width:
+            raise ValueError("Display width too small")
         self._colour_on = colour_on
         self._colour_off = colour_off
         self._bgcolour = bgcolour
-        self._segment_width = segment_width
-        self._segment_padding = segment_padding
-        self._frame_width = frame_width
+        self._segment_width = segment_width if segment_width \
+            else self._char_width/5
+        self._segment_padding = segment_padding if segment_padding \
+            else self._char_width/10
+        self._char_frame_width = char_frame_width if char_frame_width \
+            else self._char_width/15
+        self._content_width = len(self._content) * self._char_width
+        self._segment_length = self._char_width - self._segment_width \
+            - 2 * self._char_frame_width
+        self._height = 2 * self._segment_length + \
+            self._segment_width + 2 * self._char_frame_width
         self._right_justified = right_justify
 
-        if char_width:
-            self._char_width = char_width
-        else:
-            if not content:
-                raise ValueError('Empty content and no char_width')
-
-            self._char_width = int(self._width / len(self._content))
-
-        self._surface = pygame.Surface((self._width, self._height))
-        self._numchars = int(self._width / self._char_width)
+        self._surface = pygame.Surface((self._display_width, self._height))
+        self._numchars = len(self._content)
         self.update()
 
     def update(self):
         self[:] = []
-        self._numchars = int(self._width / self._char_width)
+        self._numchars = len(self._content)
         for c in self._content:
             self.append(SevenSegmentChar(c,
+                                         self._char_width,
                                          self._colour_on,
                                          self._colour_off,
                                          self._bgcolour,
-                                         self._char_width,
-                                         self._height,
                                          self._segment_width,
                                          self._segment_padding,
-                                         self._frame_width))
+                                         self._char_frame_width))
         self.update_surface()
 
     def update_surface(self):
         rect = pygame.Rect(0, 0, self._char_width, self._height)
         if self._right_justified:
-            deficit = self._numchars - len(self._content)
-            rect.move(deficit * self._char_width, 0)
+            deficit = self._display_width - self._content_width
+            rect = rect.move(deficit, 0)
 
         for ssdchar in self[-self._numchars:]:
             self._surface.blit(ssdchar.surface, rect)
             rect = rect.move(self._char_width, 0)
 
     @property
-    def width(self):
-        return self._width
+    def display_width(self):
+        return self._display_width
 
-    @width.setter
-    def width(self, new):
-        self._width = new
-        self._surface = pygame.Surface(self._width, self._height)
+    @display_width.setter
+    def display_width(self, new):
+        self._display_width = new
+        self._surface = pygame.Surface(self._display_width, self._height)
         self.update()
 
     @property
@@ -451,7 +502,7 @@ class SevenSegmentDisplay(list):
     @height.setter
     def height(self, new):
         self._height = new
-        self._surface = pygame.Surface(self._width, self._height)
+        self._surface = pygame.Surface(self._display_width, self._height)
         self.update()
 
     @property
@@ -519,12 +570,12 @@ class SevenSegmentDisplay(list):
         self.update_surface()
 
     @property
-    def frame_width(self):
-        return self._frame_width
+    def char_frame_width(self):
+        return self._char_frame_width
 
-    @frame_width.setter
-    def frame_width(self, new):
-        self._frame_width = new
+    @char_frame_width.setter
+    def char_frame_width(self, new):
+        self._char_frame_width = new
         for ssdchar in self:
             ssdchar.frame_width = new
         self.update_surface()
@@ -554,6 +605,6 @@ class SevenSegmentDisplay(list):
     @surface.setter
     def surface(self, new):
         self._surface = new
-        self._width = new.get_width()
+        self._display_width = new.get_width()
         self._height = new.get_height()
         self.update()
