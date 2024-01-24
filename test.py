@@ -1,3 +1,5 @@
+#! .venv/bin/python
+
 """
 Created on Jan 28, 2012
 @author: yati
